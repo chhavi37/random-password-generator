@@ -11,31 +11,72 @@ function generatePassword(
     const numberChars = "0123456789";
     const symbolChars = "!@#$%^&*()_+-=";
 
-    let allowedChars = "";
-    let password = "";
+    const selectedSets = [];
 
-    allowedChars += includeLowercase ? lowercaseChars : "";
-    allowedChars += includeUppercase ? uppercaseChars : "";
-    allowedChars += includeNumbers ? numberChars : "";
-    allowedChars += includeSymbols ? symbolChars : "";
-
-    if (length <= 0 || !Number.isInteger(length)) {
-        return "Password length must be at least 1";
+    if (includeLowercase) {
+        selectedSets.push(lowercaseChars);
     }
 
-    if (allowedChars.length === 0) {
-        return "At least 1 character set must be selected";
+    if (includeUppercase) {
+        selectedSets.push(uppercaseChars);
     }
 
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(
-            Math.random() * allowedChars.length
-        );
-
-        password += allowedChars[randomIndex];
+    if (includeNumbers) {
+        selectedSets.push(numberChars);
     }
 
-    return password;
+    if (includeSymbols) {
+        selectedSets.push(symbolChars);
+    }
+
+    if (!Number.isInteger(length) || length < 1 || length > 128) {
+        return "Enter a length between 1 and 128.";
+    }
+
+    if (selectedSets.length === 0) {
+        return "Please select at least one character type.";
+    }
+
+    if (length < selectedSets.length) {
+        return `Choose a length of at least ${selectedSets.length} for your selected character types.`;
+    }
+
+    const allowedChars = selectedSets.join("");
+    const passwordChars = [];
+
+    // Add one character from each selected category.
+    for (const characterSet of selectedSets) {
+        const randomIndex = secureRandomIndex(characterSet.length);
+        passwordChars.push(characterSet[randomIndex]);
+    }
+
+    // Fill the remaining password length.
+    while (passwordChars.length < length) {
+        const randomIndex = secureRandomIndex(allowedChars.length);
+        passwordChars.push(allowedChars[randomIndex]);
+    }
+
+    // Shuffle the characters so category order isn't predictable.
+    for (let i = passwordChars.length - 1; i > 0; i--) {
+        const j = secureRandomIndex(i + 1);
+
+        [passwordChars[i], passwordChars[j]] =
+            [passwordChars[j], passwordChars[i]];
+    }
+
+    return passwordChars.join("");
+}
+
+function secureRandomIndex(max) {
+    const randomValues = new Uint32Array(1);
+    const range = 0x100000000;
+    const limit = range - (range % max);
+
+    do {
+        crypto.getRandomValues(randomValues);
+    } while (randomValues[0] >= limit);
+
+    return randomValues[0] % max;
 }
 
 function createPassword() {
@@ -65,3 +106,9 @@ function createPassword() {
 
     document.getElementById("password").textContent = password;
 }
+
+// Connect the button to the function.
+document.getElementById("generateBtn").addEventListener(
+    "click",
+    createPassword
+);
