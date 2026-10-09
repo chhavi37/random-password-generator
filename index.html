@@ -2,17 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Password Generator</title>
 
     <link rel="stylesheet" href="style.css">
+    
 </head>
 <body>
 
     <div id="container">
         <h1>Password Generator</h1>
 
-        <label for="passwordLength">Password Length:</label>
-        <input type="number" id="passwordLength" value="12" min="1">
+        <div id="length-container">
+            <label for="passwordLength">Password Length:</label>
+            <input type="number" id="passwordLength" value="12" min="1" max="128">
+        </div>
 
         <div id="options">
             <label>
@@ -36,14 +42,12 @@
             </label>
         </div>
 
-        <button onclick="createPassword()">Generate Password</button>
+        <button id="generateBtn">Generate Password</button>
 
         <div id="passwordResult">
-            <p id="password"></p>
+            <p id="password">Your password will appear here</p>
         </div>
     </div>
-
-    <script src="script.js"></script>
-
+<script src="script.js"></script>
 </body>
 </html>
